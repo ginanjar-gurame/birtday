@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="cake-icon.png" type="image/png">
+<title>🎂 Ulang Tahun 🎉</title>
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #f0f8ff;
+        font-family: sans-serif;
+        overflow: hidden; /* Mencegah scrollbar saat animasi */
+    }
+
+    .cake {
+        position: relative;
+        width: 250px;
+        height: 210px; /* Memberi ruang untuk kue */
+        margin-top: 70px;
+    }
+
+    .layer {
+        position: absolute;
+        width: 100%;
+        height: 80px;
+        background-color: #f2d2b6;
+        border: 3px solid #c8a282;
+        border-radius: 10px 10px 0 0;
+        bottom: 0;
+        opacity: 0; /* Mulai dengan tidak terlihat */
+        animation: drop 0.8s ease-out forwards;
+    }
+
+    .layer-middle {
+        width: 220px;
+        height: 70px;
+        background-color: #e8bfa8;
+        border: 3px solid #c8a282;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 75px;
+        animation-delay: 0.5s; /* Jatuh setelah lapisan bawah */
+    }
+
+    .layer-top {
+        width: 190px;
+        height: 60px;
+        background-color: #d9a48e;
+        border: 3px solid #c8a282;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 140px;
+        border-radius: 5px 5px 0 0;
+        animation-delay: 1s; /* Jatuh setelah lapisan tengah */
+    }
+    
+    .icing {
+        position: absolute;
+        width: 190px;
+        height: 30px;
+        background: #fff;
+        border-radius: 50% / 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 195px;
+        opacity: 0;
+        animation: drop 0.8s ease-out forwards;
+        animation-delay: 1.5s; /* Jatuh setelah lapisan atas */
+        z-index: 2;
+    }
+
+    .candles {
+        position: absolute;
+        bottom: 215px; /* Naikkan agar lilin hanya menyentuh kue, tidak menyatu */
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        opacity: 0;
+        animation: drop 0.8s ease-out forwards;
+        animation-delay: 2s; /* Jatuh terakhir */
+    }
+
+    .candle {
+        position: relative;
+        width: 10px;
+        height: 50px;
+        background: repeating-linear-gradient(
+            45deg,
+            #f06,
+            #f06 5px,
+            #ff0 5px,
+            #ff0 10px
+        );
+        margin: 0 15px;
+        border-radius: 5px 5px 0 0;
+        animation: candle-wobble 2.2s infinite ease-in-out;
+    }
+    
+    .flame {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%) scaleY(0);
+        width: 10px;
+        height: 20px;
+        background-color: orange;
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        opacity: 0;
+        transition: transform 0.3s ease-out, opacity 0.3s;
+    }
+    
+    .flame.lit {
+        opacity: 1;
+        animation: flicker 1.5s infinite;
+        box-shadow: 0 0 16px 8px #ffe066, 0 0 32px 12px #ffd70088;
+        transform: translateX(-50%) scaleY(1);
+    }
+    @keyframes pulse-idle {
+        0%, 100% { opacity: 0.2; transform: scaleY(0.2); }
+        50% { opacity: 0.4; transform: scaleY(0.3); }
+    }
+    .flame:not(.lit) {
+        animation: pulse-idle 2s infinite;
+    }
+
+    @keyframes drop {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -150px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translate(-50%, 0) scale(1);
+        }
+    }
+    /* Khusus untuk lapisan paling bawah karena tidak butuh transform:translateX */
+    .layer-bottom {
+        animation-name: drop-bottom;
+    }
+    @keyframes drop-bottom {
+        from {
+            opacity: 0;
+            transform: translateY(-150px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+
+    @keyframes flicker {
+        0%, 100% {
+            transform: scaleY(1) rotate(-2deg);
+            background-color: #ffc800;
+        }
+        50% {
+            transform: scaleY(0.9) rotate(2deg);
+            background-color: #ffeb00;
+        }
+    }
+    
+    button {
+        margin-top: 60px;
+        padding: 14px 28px;
+        font-size: 18px;
+        cursor: pointer;
+        border: 2px solid #4CAF50;
+        background-color: white;
+        color: #4CAF50;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s, all 0.4s ease;
+    }
+
+    button:hover, button:focus {
+        background-color: #4CAF50;
+        color: white;
+        outline: 2px solid #388e3c;
+    }
+
+    .birthday-title {
+        margin-top: 50px;
+        margin-bottom: 60px;
+        font-family: 'Comic Sans MS', cursive, sans-serif;
+        color: #ff69b4;
+        text-shadow: 2px 2px 8px #fff, 0 0 10px #ffb347;
+        font-size: 2.3rem;
+        letter-spacing: 1px;
+        opacity: 0;
+        transform: scale(0.9);
+        transition: opacity 0.7s, transform 0.7s;
+    }
+    .birthday-title.show {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Dekorasi balon */
+    .balloons {
+        position: absolute;
+        width: 100vw;
+        left: 0;
+        top: 0;
+        pointer-events: none;
+        z-index: 1;
+    }
+    .balloon {
+        position: absolute;
+        width: 40px;
+        height: 55px;
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        opacity: 0.8;
+        z-index: 1;
+        animation: float 4s ease-in-out infinite alternate;
+    }
+    .balloon1 { left: 10vw; top: 60px; background: #ff69b4; animation-delay: 0s; animation-duration: 4.2s; }
+    .balloon2 { left: 80vw; top: 80px; background: #7afcff; animation-delay: 1s; animation-duration: 3.7s; }
+    .balloon3 { left: 20vw; top: 120px; background: #fff700; animation-delay: 0.5s; animation-duration: 4.6s; }
+    .balloon4 { left: 70vw; top: 40px; background: #b967ff; animation-delay: 1.5s; animation-duration: 3.9s; }
+    .balloon5 { left: 50vw; top: 30px; background: #ffb347; animation-delay: 0.8s; animation-duration: 4.4s; }
+    @keyframes float {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-30px); }
+    }
+
+    /* Confetti */
+    .confetti-canvas {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 100;
+    }
+
+    @media (max-width: 600px) {
+        .cake { width: 180px; height: 140px; }
+        .layer { height: 50px; }
+        .layer-middle { width: 140px; height: 40px; bottom: 45px; }
+        .layer-top { width: 110px; height: 30px; bottom: 80px; }
+        .icing { width: 110px; height: 18px; bottom: 110px; }
+        .candles { bottom: 140px; }
+        .balloon { width: 24px; height: 32px; }
+        .balloon-string { height: 24px; }
+        button { font-size: 22px; padding: 18px 32px; }
+    }
+
+    /* Tambahan tali balon */
+    .balloon-string {
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        width: 24px;
+        height: 44px;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.7;
+    }
+    .balloon-string svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        /* Animasi goyang tali */
+        animation: wiggle-string 2.5s ease-in-out infinite;
+    }
+    @keyframes wiggle-string {
+        0% { transform: scaleY(1) translateX(0); }
+        10% { transform: scaleY(1.04) translateX(-1px); }
+        20% { transform: scaleY(0.98) translateX(1.5px); }
+        30% { transform: scaleY(1.03) translateX(-2px); }
+        40% { transform: scaleY(0.97) translateX(2px); }
+        50% { transform: scaleY(1.05) translateX(0); }
+        60% { transform: scaleY(0.97) translateX(-2px); }
+        70% { transform: scaleY(1.03) translateX(2px); }
+        80% { transform: scaleY(0.98) translateX(-1.5px); }
+        90% { transform: scaleY(1.04) translateX(1px); }
+        100% { transform: scaleY(1) translateX(0); }
+    }
+
+    /* Dekorasi bintang dan pita */
+    .stars {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 2;
+    }
+    .star {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        background: gold;
+        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        opacity: 0.85;
+        filter: drop-shadow(0 0 6px #fff59d);
+    }
+    .ribbon {
+        position: absolute;
+        width: 36px;
+        height: 16px;
+        background: linear-gradient(90deg, #ff69b4 60%, #fff700 100%);
+        border-radius: 8px 8px 16px 16px;
+        opacity: 0.7;
+        z-index: 2;
+        transform: rotate(-12deg);
+    }
+    .ribbon2 {
+        background: linear-gradient(90deg, #7afcff 60%, #b967ff 100%);
+        transform: rotate(8deg);
+    }
+
+    /* Efek glow pada kue saat lilin menyala */
+    .cake.glow .layer,
+    .cake.glow .layer-middle,
+    .cake.glow .layer-top,
+    .cake.glow .icing {
+        box-shadow: 0 0 40px 20px #ffe066, 0 0 80px 30px #ffd70044;
+        transition: box-shadow 0.5s;
+        z-index: 2;
+    }
+    .cake.glow {
+        box-shadow: none !important;
+    }
+
+    /* Efek hover pada balon dan bintang */
+    .balloon:hover, .star:hover {
+        filter: brightness(1.2) drop-shadow(0 0 10px #fff59d);
+        transform: scale(1.08);
+        transition: filter 0.2s, transform 0.2s;
+        z-index: 10;
+    }
+
+    #wish {
+        font-size: 1.3rem;
+        text-align: center;
+        color: #ff69b4;
+        font-family: 'Pacifico', 'Comic Sans MS', cursive, sans-serif;
+        background: linear-gradient(90deg, #ff69b4 30%, #ffb347 70%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+        text-shadow: 2px 2px 8px #fff, 0 0 10px #ffb347;
+        margin-bottom: 10px;
+        display: none;
+        letter-spacing: 1px;
+    }
+</style>
+<!-- Tambahkan Google Fonts untuk Pacifico -->
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="stars" aria-hidden="true">
+    <div class="star" style="left:8vw;top:18vh;"></div>
+    <div class="star" style="left:85vw;top:12vh;"></div>
+    <div class="star" style="left:60vw;top:8vh;"></div>
+    <div class="star" style="left:30vw;top:10vh;"></div>
+    <div class="star" style="left:70vw;top:22vh;"></div>
+</div>
+<div class="balloons" aria-hidden="true">
+<div class="balloon balloon1"><div class="balloon-string"><svg viewBox="0 0 24 44"><path d="M12 0 Q16 10 8 20 Q0 30 12 44" stroke="#aaa" stroke-width="2" fill="none"/></svg></div></div>
+<div class="balloon balloon2"><div class="balloon-string"><svg viewBox="0 0 24 44"><path d="M12 0 Q8 12 16 22 Q24 32 12 44" stroke="#bbb" stroke-width="2" fill="none"/></svg></div></div>
+<div class="balloon balloon3"><div class="balloon-string"><svg viewBox="0 0 24 44"><path d="M12 0 Q18 14 6 28 Q0 38 12 44" stroke="#ccc" stroke-width="2" fill="none"/></svg></div></div>
+<div class="balloon balloon4"><div class="balloon-string"><svg viewBox="0 0 24 44"><path d="M12 0 Q6 10 18 20 Q24 34 12 44" stroke="#aaa" stroke-width="2" fill="none"/></svg></div></div>
+<div class="balloon balloon5"><div class="balloon-string"><svg viewBox="0 0 24 44"><path d="M12 0 Q14 18 4 30 Q0 40 12 44" stroke="#bbb" stroke-width="2" fill="none"/></svg></div></div>
+</div>
+<div class="ribbon" aria-hidden="true" style="left: 18vw; top: 38vh;"></div>
+<div class="ribbon ribbon2" aria-hidden="true" style="left: 65vw; top: 32vh;"></div>
+<h1 class="birthday-title" id="birthdayTitle" style="display:none;">Selamat Ulang Tahun!</h1>
+
+<canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+<div class="cake">
+    <div class="layer layer-bottom"></div>
+    <div class="layer layer-middle"></div>
+    <div class="layer layer-top"></div>
+    <div class="icing"></div>
+    <div class="candles">
+        <div class="candle">
+            <div class="flame"></div>
+        </div>
+        <div class="candle">
+            <div class="flame"></div>
+        </div>
+        <div class="candle">
+            <div class="flame"></div>
+        </div>
+    </div>
+</div>
+<!-- Modal Pop-Up Ucapan -->
+<div id="popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:20px; border-radius:12px; box-shadow:0 0 30px #ffb347; z-index:999; text-align:center;">
+    <h3 style="color:#ff69b4;">🎉 Selamat Ulang Tahun!</h3>
+    <p>Semoga tahun ini penuh kebahagiaan dan kesuksesan!</p>
+    <button onclick="document.getElementById('popup').style.display='none'" style="margin-top:10px;">Tutup</button>
+</div>
+<!-- Share & Reset & Volume -->
+<audio id="birthdaySound" src="happy-birthday.mp3"></audio>
+<audio id="blowSound" src="blow-candle.mp3"></audio>
+<button id="lightButton" aria-label="Nyalakan atau padamkan lilin ulang tahun">Nyalakan Lilin</button>
+<script>
+    const lightButton = document.getElementById('lightButton');
+    const flames = document.querySelectorAll('.flame');
+    const birthdayTitle = document.getElementById('birthdayTitle');
+    const birthdaySound = document.getElementById('birthdaySound');
+    const blowSound = document.getElementById('blowSound');
+    const wish = document.getElementById('wish');
+    let isLit = false;
+
+    // Confetti
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const ctx = confettiCanvas.getContext('2d');
+    let confettiParticles = [];
+    function resizeConfetti() {
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+    }
+    resizeConfetti();
+    window.addEventListener('resize', resizeConfetti);
+
+    // Confetti shape/color variations
+    function randomColor() {
+        const colors = ['#ff69b4', '#ffb347', '#fff700', '#7afcff', '#b967ff', '#fff', '#ff5722', '#4caf50', '#2196f3', '#e91e63'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+    function randomShape() {
+        const shapes = ['circle', 'rect', 'triangle'];
+        return shapes[Math.floor(Math.random() * shapes.length)];
+    }
+    function createConfetti() {
+        confettiParticles = [];
+        for (let i = 0; i < 120; i++) {
+            confettiParticles.push({
+                x: Math.random() * confettiCanvas.width,
+                y: Math.random() * -confettiCanvas.height,
+                r: Math.random() * 6 + 4,
+                d: Math.random() * 2 + 2,
+                color: randomColor(),
+                tilt: Math.random() * 20 - 10,
+                tiltAngle: 0,
+                tiltAngleIncremental: Math.random() * 0.07 + 0.05,
+                shape: randomShape()
+            });
+        }
+    }
+    function drawConfetti() {
+        ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        for (let p of confettiParticles) {
+            ctx.save();
+            ctx.globalAlpha = 0.8;
+            ctx.translate(p.x + p.tilt, p.y);
+            ctx.rotate(p.tiltAngle / 2);
+            ctx.fillStyle = p.color;
+            ctx.strokeStyle = p.color;
+            if (p.shape === 'circle') {
+                ctx.beginPath();
+                ctx.arc(0, 0, p.r / 2, 0, 2 * Math.PI);
+                ctx.fill();
+            } else if (p.shape === 'rect') {
+                ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r);
+            } else if (p.shape === 'triangle') {
+                ctx.beginPath();
+                ctx.moveTo(0, -p.r / 2);
+                ctx.lineTo(p.r / 2, p.r / 2);
+                ctx.lineTo(-p.r / 2, p.r / 2);
+                ctx.closePath();
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+        ctx.globalAlpha = 1;
+    }
+    function updateConfetti() {
+        for (let p of confettiParticles) {
+            p.y += (Math.cos(p.d) + 2 + p.d / 2) * 0.8;
+            p.x += Math.sin(0.01 * p.y) * 2;
+            p.tiltAngle += p.tiltAngleIncremental;
+            p.tilt = Math.sin(p.tiltAngle) * 15;
+            if (p.y > confettiCanvas.height) {
+                p.x = Math.random() * confettiCanvas.width;
+                p.y = -10;
+            }
+        }
+    }
+    let confettiActive = false;
+    function startConfetti() {
+        createConfetti();
+        confettiActive = true;
+        confettiCanvas.style.display = 'block';
+        animateConfetti();
+        setTimeout(() => {
+            confettiActive = false;
+            confettiCanvas.style.display = 'none';
+        }, 3500);
+    }
+    function animateConfetti() {
+        if (!confettiActive) return;
+        drawConfetti();
+        updateConfetti();
+        requestAnimationFrame(animateConfetti);
+    }
+
+    function sharePage() {
+        const shareData = {
+            title: 'Selamat Ulang Tahun!',
+            text: 'Yuk rayakan ulang tahunku bersama! 🎂',
+            url: window.location.href
+        };
+        if (navigator.share) {
+            navigator.share(shareData).catch(console.error);
+        } else {
+            alert('Fitur share tidak didukung di perangkat ini');
+        }
+    }
+
+
+    lightButton.addEventListener('click', () => {
+        isLit = !isLit;
+        flames.forEach(flame => flame.classList.toggle('lit'));
+        lightButton.textContent = isLit ? 'Padamkan Lilin' : 'Nyalakan Lilin';
+        const cake = document.querySelector('.cake');
+        if (isLit) {
+            birthdayTitle.style.display = 'block';
+            setTimeout(() => birthdayTitle.classList.add('show'), 10);
+            startConfetti();
+            cake.classList.add('glow');
+            birthdaySound.currentTime = 0;
+            birthdaySound.play(); // nyalakan musik ulang tahun
+            // wish.style.display = 'block';
+            document.getElementById('popup').style.display = 'block';
+        } else {
+            birthdayTitle.classList.remove('show');
+            setTimeout(() => birthdayTitle.style.display = 'none', 500);
+            cake.classList.remove('glow');
+            blowSound.currentTime = 0;
+            blowSound.play(); // efek tiupan lilin
+        // wish.style.display = 'none';
+            document.getElementById('popup').style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html>
